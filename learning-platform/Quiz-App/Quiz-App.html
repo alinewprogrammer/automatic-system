@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Creator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #333;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Fixed navbar styles */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: white;
+      padding: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .app-container {
+      max-width: 960px;
+      margin: 5rem auto 2rem;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .app-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #f0f4ff;
+    }
+
+    .app-title {
+      font-size: 2rem;
+      color: #4c51bf;
+      margin-bottom: 0.5rem;
+    }
+
+    .app-subtitle {
+      color: #718096;
+      font-size: 1rem;
+    }
+
+    .tabs {
+      display: flex;
+      background: #f0f4ff;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+      gap: 2px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: #4a5568;
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .input-group {
+      margin-bottom: 2rem;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: #4a5568;
+    }
+
+    .input-group input,
+    .input-group select,
+    .input-group textarea {
+      width: 100%;
+      padding: 0.875rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus,
+    .input-group textarea:focus {
+      border-color: #667eea;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+
+    .btn {
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      background: #667eea;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0.5rem 0;
+      transition: all 0.3s;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background: #5a67d8;
+    }
+
+    .btn-secondary {
+      background: #4facfe;
+    }
+
+    .btn-success {
+      background: #48bb78;
+    }
+
+    .btn-warning {
+      background: #ecc94b;
+      color: #333;
+    }
+
+    .btn-danger {
+      background: #e53e3e;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .quiz-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .question-card {
+      border-left: 4px solid #667eea;
+      background: #fdfdff;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+      transition: all 0.3s;
+      border: 1px solid #f0f4ff;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .question-number {
+      width: 35px;
+      height: 35px;
+      background: #667eea;
+      color: #fff;
+      text-align: center;
+      line-height: 35px;
+      border-radius: 50%;
+      font-weight: bold;
+    }
+
+    .quiz-question {
+      margin-bottom: 1.5rem;
+      padding: 1.5rem;
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+      border-radius: 8px;
+    }
+
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .option-label:hover {
+      background: #edf2f7;
+    }
+
+    .option-label input {
+      margin-right: 1rem;
+    }
+
+    .results-header {
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(to right, #667eea, #48bb78);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem auto;
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .result-question {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #ccc;
+      border: 1px solid #eee;
+    }
+
+    .result-question.correct {
+      border-left-color: #48bb78;
+    }
+
+    .result-question.incorrect {
+      border-left-color: #fc8181;
+    }
+
+    .saved-quiz-item {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .saved-quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .saved-quiz-info h4 {
+      margin-bottom: 0.5rem;
+      color: #4a5568;
+    }
+
+    .saved-quiz-info p {
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .quiz-preview {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 6px;
+      border: 1px solid #dee2e6;
+      display: none;
+    }
+
+    .preview-question {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .message {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border-color: #c3e6cb;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border-color: #f5c6cb;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #f0f4ff;
+    }
+
+    .quiz-stats {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .quiz-stats span {
+      background: #f0f4ff;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .quiz-actions {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 2px solid #f0f4ff;
+    }
+
+    .create-quiz-actions {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+
+    .quiz-question {
+      margin-bottom: 5rem;
+    }
+
+    @media (max-width: 600px) {
+      .app-container {
+        padding: 1rem;
+        margin: 4rem 0.5rem 1rem;
+      }
+
+      .button-group,
+      .quiz-header,
+      .saved-quiz-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+      }
+
+      .saved-quiz-header {
+        align-items: flex-start;
+      }
+
+      .app-title {
+        font-size: 1.6rem;
+      }
+
+      .score-circle {
+        width: 100px;
+        height: 100px;
+        font-size: 1.5rem;
+      }
+
+      .quiz-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="bg-white p-4 shadow-md rounded-b-lg">
+    <div class="container mx-auto flex justify-center space-x-4">
+      <a href="../flashcard/Flashcard.html" class="navbar-link text-black hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Flashcard</a>
+      <a href="../physics/physics.html" class="navbar-link text-black hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Physics</a>
+      <a href="../pomodoro/20.Pomodoro-Timer.html" class="navbar-link text-black hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Pomodoro Timer</a>
+      <a href="../prayers/prayers.html" class="navbar-link text-black hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Prayers</a>
+      <a href="../Quiz App/Quiz App.html" class="navbar-link text-black hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Quiz App</a>
+    </div>
+  </nav>
+
+  <div class="app-container">
+    <header class="app-header">
+      <h1 class="app-title">🧠 Enhanced Quiz Creator</h1>
+      <p class="app-subtitle">Create, save, and take interactive quizzes</p>
+    </header>
+
+    <div id="creatorScreen" class="screen active">
+      <div class="tabs">
+        <div class="tab active" data-tab="create">Create Quiz</div>
+        <div class="tab" data-tab="saved">Saved Quizzes</div>
+        <div class="tab" data-tab="results">Quiz Results</div>
+      </div>
+
+      <div id="createTab" class="tab-content active">
+        <div class="quiz-form">
+          <div class="input-group">
+            <label for="quizName">Quiz Name - اسم الاختبار</label>
+            <input type="text" id="quizName" placeholder="Enter your quiz name... أدخل اسم الاختبار" required />
+          </div>
+          <div class="create-quiz-actions">
+            <div class="button-group">
+              <button class="btn" id="addQuestionBtn">➕ Add Question</button>
+              <button class="btn btn-secondary" id="saveQuizBtn">💾 Save Quiz</button>
+              <button class="btn btn-warning" id="newQuizBtn">📝 New Quiz</button>
+            </div>
+          </div>
+          <div id="questionsContainer"></div>
+        </div>
+      </div>
+
+      <div id="savedTab" class="tab-content">
+        <h3 style="margin-bottom: 1.5rem;">Your Saved Quizzes - اختباراتك المحفوظة</h3>
+        <div id="savedQuizzesContainer"></div>
+      </div>
+
+      <div id="resultsTab" class="tab-content">
+        <!-- Results content will be loaded dynamically -->
+      </div>
+    </div>
+
+    <div id="quizScreen" class="screen">
+      <div class="quiz-header">
+        <h2 id="currentQuizName">Quiz</h2>
+        <div class="quiz-stats">
+          <span>📝 <span id="questionCounter">0 Questions</span></span>
+          <span>⏱️ <span id="timer">05:00</span></span>
+        </div>
+        <button class="btn btn-outline" id="backToCreator">← Back</button>
+      </div>
+      <div id="quizContent"></div>
+      <div class="quiz-actions">
+        <button class="btn btn-success" id="submitQuizBtn">Submit Quiz</button>
+      </div>
+    </div>
+
+    <div id="resultsScreen" class="screen">
+      <div class="results-header">
+        <h2>Quiz Results - نتائج الاختبار</h2>
+        <div class="score-display">
+          <div class="score-circle">
+            <span id="finalScore">0%</span>
+          </div>
+          <p id="scoreMessage">Great job!</p>
+        </div>
+      </div>
+      <div id="resultsContent"></div>
+      <div class="button-group" style="justify-content: center; margin-top: 2rem;">
+        <button class="btn" id="retakeQuizBtn">🔄 Retake Quiz</button>
+        <button class="btn btn-secondary" id="backToCreatorFromResults">📝 Back to Creator</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // STATE VARIABLES
+      let creatorQuestions = [];
+      let currentEditIndex = -1;
+      let activeQuiz = null;
+      let userAnswers = [];
+      let quizTimer = null;
+      let timeRemaining = 300;
+
+      // UTILITY FUNCTIONS
+      const $ = id => document.getElementById(id);
+      const showScreen = name => {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        $(name + 'Screen').classList.add('active');
+      };
+      const getFromStorage = key => {
+        try { return JSON.parse(localStorage.getItem(key) || '[]'); }
+        catch (e) { 
+          console.error('Error accessing localStorage:', e);
+          return []; 
+        }
+      };
+      const showMessage = (msg, type = 'success', duration = 3000) => {
+        const existing = document.querySelector('.message.temp');
+        if (existing) existing.remove();
+        
+        const el = document.createElement('div');
+        el.className = `message temp ${type}`;
+        el.textContent = msg;
+        const activeScreen = document.querySelector('.screen.active .tab-content.active') || document.querySelector('.screen.active');
+        activeScreen.prepend(el);
+        setTimeout(() => el.remove(), duration);
+      };
+
+      // --- QUIZ CREATOR LOGIC ---
+      const newQuiz = () => {
+        if (creatorQuestions.length > 0 && !confirm('Create new quiz? Current progress will be lost.')) return;
+        currentEditIndex = -1;
+        $('quizName').value = '';
+        creatorQuestions = [];
+        addQuestion();
+        showMessage('New quiz form created!');
+      };
+
+      const addQuestion = () => {
+        if (creatorQuestions.length >= 20) {
+          showMessage('Maximum 20 questions allowed', 'error');
+          return;
+        }
+        if (creatorQuestions.length === 19) {
+          showMessage('You can add one more question (max 20)', 'info');
+        }
+        creatorQuestions.push({ id: Date.now(), text: '', type: 'mcq', options: ['', '', '', ''], answer: '' });
+        renderCreatorQuestions();
+      };
+
+      const removeQuestion = id => {
+        if (creatorQuestions.length <= 1) return showMessage('At least one question is required', 'error');
+        creatorQuestions = creatorQuestions.filter(q => q.id !== id);
+        renderCreatorQuestions();
+      };
+
+      const changeQuestionType = (id, type) => {
+        const question = creatorQuestions.find(q => q.id === id);
+        if (!question) return;
+        question.type = type;
+        question.options = type === 'mcq' ? ['', '', '', ''] : ['True', 'False'];
+        question.answer = '';
+        renderCreatorQuestions();
+      };
+
+      const renderCreatorQuestions = () => {
+        $('questionsContainer').innerHTML = creatorQuestions.map((q, i) => {
+          const validOptions = q.type === 'tf' ? ['True', 'False'] : q.options.filter(o => o && o.trim());
+          return `
+          <div class="question-card" data-id="${q.id}">
+              <div class="question-header">
+                  <span class="question-number">${i + 1}</span>
+                  <button class="btn btn-danger btn-small" data-action="remove">× Remove</button>
+              </div>
+              <div class="input-group">
+                  <label>Question Text</label>
+                  <input type="text" value="${q.text}" data-field="text" placeholder="Enter question..." required>
+              </div>
+              <div class="input-group">
+                  <label>Question Type</label>
+                  <select data-field="type">
+                      <option value="mcq" ${q.type === 'mcq' ? 'selected' : ''}>Multiple Choice</option>
+                      <option value="tf" ${q.type === 'tf' ? 'selected' : ''}>True/False</option>
+                  </select>
+              </div>
+              ${q.type === 'mcq' ? `
+              <div class="input-group">
+                  <label>Options</label>
+                  ${q.options.map((opt, idx) => `
+                      <input type="text" value="${opt}" data-field="option" data-index="${idx}" placeholder="Option ${idx + 1}" required>
+                  `).join('')}
+              </div>` : ''}
+              <div class="input-group">
+                  <label>Correct Answer</label>
+                  <select data-field="answer" required>
+                      <option value="">-- Select Answer --</option>
+                      ${validOptions.map(opt => `<option value="${opt}" ${opt === q.answer ? 'selected' : ''}>${opt}</option>`).join('')}
+                  </select>
+              </div>
+          </div>`;
+        }).join('');
+      };
+
+      const validateQuizData = (name, questions) => {
+        if (!name) return { valid: false, message: 'Quiz name is required' };
+        if (!questions.length) return { valid: false, message: 'At least one question is required' };
+        for (let i = 0; i < questions.length; i++) {
+          const q = questions[i];
+          if (!q.text.trim()) return { valid: false, message: `Question ${i + 1}: Text is required` };
+          if (q.type === 'mcq') {
+            const validOptions = q.options.filter(o => o.trim());
+            if (validOptions.length < 2) return { valid: false, message: `Question ${i + 1}: At least 2 options required` };
+            if (!validOptions.includes(q.answer)) return { valid: false, message: `Question ${i + 1}: A valid answer must be selected` };
+          }
+          if (!q.answer) return { valid: false, message: `Question ${i + 1}: Answer is required` };
+        }
+        return { valid: true };
+      };
+
+      const saveQuiz = () => {
+        const name = $('quizName').value.trim();
+        const validation = validateQuizData(name, creatorQuestions);
+        if (!validation.valid) return showMessage(validation.message, 'error');
+        
+        const quizzes = getFromStorage('quizzes');
+        const quizData = { name, questions: creatorQuestions, createdAt: Date.now() };
+
+        if (currentEditIndex > -1) {
+          quizzes[currentEditIndex] = { ...quizData, createdAt: quizzes[currentEditIndex].createdAt };
+          showMessage('Quiz updated successfully!');
+        } else {
+          quizzes.push(quizData);
+          currentEditIndex = quizzes.length -1;
+          showMessage('Quiz saved successfully!');
+        }
+        
+        localStorage.setItem('quizzes', JSON.stringify(quizzes));
+        loadSavedQuizzes();
+      };
+
+      // --- SAVED QUIZZES LOGIC ---
+      const loadSavedQuizzes = () => {
+        const quizzes = getFromStorage('quizzes');
+        const container = $('savedQuizzesContainer');
+        container.innerHTML = quizzes.length ? quizzes.map((quiz, i) => `
+            <div class="saved-quiz-item">
+                <div class="saved-quiz-header">
+                    <div class="saved-quiz-info">
+                        <h4>${quiz.name}</h4>
+                        <p>${quiz.questions.length} questions • ${new Date(quiz.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-success btn-small" data-action="start" data-index="${i}">🚀 Start</button>
+                        <button class="btn btn-small" data-action="view" data-index="${i}">👁️ View</button>
+                        <button class="btn btn-secondary btn-small" data-action="edit" data-index="${i}">✏️ Edit</button>
+                        <button class="btn btn-danger btn-small" data-action="delete" data-index="${i}">🗑️ Delete</button>
+                    </div>
+                </div>
+                <div class="quiz-preview" id="preview-${i}">
+                    ${quiz.questions.map((q, idx) => `
+                        <div class="preview-question">
+                            <strong>Q${idx + 1}:</strong> ${q.text}<br>
+                            <strong>Answer:</strong> ${q.answer}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('') : '<div class="message"><p>No saved quizzes yet. Create one!</p></div>';
+      };
+
+      const toggleQuizPreview = index => {
+        const preview = $(`preview-${index}`);
+        preview.style.display = preview.style.display === 'block' ? 'none' : 'block';
+      };
+      
+      const loadQuizForEdit = index => {
+        const quizzes = getFromStorage('quizzes');
+        const quiz = quizzes[index];
+        if (!quiz) return;
+        
+        currentEditIndex = index;
+        $('quizName').value = quiz.name;
+        creatorQuestions = JSON.parse(JSON.stringify(quiz.questions));
+        renderCreatorQuestions();
+        
+        document.querySelector('.tab[data-tab="create"]').click();
+        showMessage('Quiz loaded for editing');
+      };
+
+      const deleteQuiz = index => {
+        if (!confirm('Delete this quiz permanently?')) return;
+        const quizzes = getFromStorage('quizzes');
+        quizzes.splice(index, 1);
+        localStorage.setItem('quizzes', JSON.stringify(quizzes));
+        loadSavedQuizzes();
+        if (currentEditIndex === index) newQuiz();
+        else if(currentEditIndex > index) currentEditIndex--;
+        showMessage('Quiz deleted');
+      };
+
+      // --- QUIZ TAKING LOGIC ---
+      const startQuiz = quizData => {
+        const validation = validateQuizData(quizData.name, quizData.questions);
+        if (!validation.valid) return showMessage(validation.message || 'Cannot start quiz.', 'error');
+
+        activeQuiz = quizData;
+        userAnswers = [];
+        timeRemaining = 300;
+        $('timer').textContent = '05:00';
+        
+        $('currentQuizName').textContent = activeQuiz.name;
+        $('questionCounter').textContent = `${activeQuiz.questions.length} Questions`;
+        $('quizContent').innerHTML = activeQuiz.questions.map((q, i) => `
+            <div class="quiz-question">
+                <p><strong>${i + 1}. ${q.text}</strong></p>
+                <div class="options-container">
+                    ${(q.type === 'tf' ? ['True', 'False'] : q.options.filter(o => o.trim())).map(option => `
+                        <label class="option-label">
+                            <input type="radio" name="q${i}" value="${option}"> ${option}
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+        
+        showScreen('quiz');
+        startTimer();
+      };
+
+      const startTimer = () => {
+        clearInterval(quizTimer);
+        const timerEl = $('timer');
+        quizTimer = setInterval(() => {
+          timeRemaining--;
+          const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+          const seconds = (timeRemaining % 60).toString().padStart(2, '0');
+          timerEl.textContent = `${minutes}:${seconds}`;
+          if (timeRemaining <= 0) {
+            clearInterval(quizTimer);
+            showMessage('Time is up!', 'error');
+            submitQuiz();
+          }
+        }, 1000);
+      };
+
+      const submitQuiz = () => {
+        clearInterval(quizTimer);
+        userAnswers = activeQuiz.questions.map((_, i) => {
+          const selected = document.querySelector(`input[name="q${i}"]:checked`);
+          return selected ? selected.value : '';
+        });
+        showResults();
+      };
+
+      // --- RESULTS LOGIC ---
+      const showResults = () => {
+        const results = activeQuiz.questions.map((q, i) => ({
+          correct: (userAnswers[i] || '').toLowerCase().trim() === (q.answer || '').toLowerCase().trim(),
+          userAnswer: userAnswers[i],
+          correctAnswer: q.answer,
+          question: q.text
+        }));
+
+        const correctCount = results.filter(r => r.correct).length;
+        const percentage = Math.round((correctCount / activeQuiz.questions.length) * 100);
+        
+        $('finalScore').textContent = `${percentage}%`;
+        $('scoreMessage').textContent = getScoreMessage(percentage);
+        $('resultsContent').innerHTML = results.map((r, i) => `
+            <div class="result-question ${r.correct ? 'correct' : 'incorrect'}">
+                <p><strong>${i + 1}. ${r.question}</strong></p>
+                <p><strong>Your Answer:</strong> ${r.userAnswer || 'No answer'} ${r.correct ? '✅' : '❌'}</p>
+                ${!r.correct ? `<p><strong>Correct Answer:</strong> ${r.correctAnswer}</p>` : ''}
+            </div>
+        `).join('');
+
+        saveResult({
+          name: activeQuiz.name,
+          score: percentage,
+          correctCount,
+          totalQuestions: activeQuiz.questions.length,
+          date: new Date().toISOString()
+        });
+
+        showScreen('results');
+      };
+      
+      const saveResult = resultData => {
+        const results = getFromStorage('quizResults');
+        results.unshift(resultData);
+        localStorage.setItem('quizResults', JSON.stringify(results));
+        loadQuizResults();
+      };
+
+      const loadQuizResults = () => {
+        const results = getFromStorage('quizResults');
+        const container = $('resultsTab');
+        if (results.length === 0) {
+          container.innerHTML = `
+            <h3 style="margin-bottom: 1.5rem;">Quiz Results History</h3>
+            <div class="message"><p>Your quiz results will appear here.</p></div>`;
+          return;
+        }
+        container.innerHTML = `
+          <div class="quiz-header">
+            <h3>Quiz Results History</h3>
+            <button class="btn btn-danger btn-small" id="clearResultsBtn">Clear History</button>
+          </div>
+          <div id="resultsList">
+            ${results.map(r => `
+              <div class="saved-quiz-item">
+                <div class="saved-quiz-info">
+                  <h4>${r.name}</h4>
+                  <p>Score: <strong>${r.score}%</strong> (${r.correctCount}/${r.totalQuestions})</p>
+                  <p>Taken on: ${new Date(r.date).toLocaleString()}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>`;
+      };
+
+      const getScoreMessage = percentage => {
+        if (percentage >= 90) return '🌟 مش خساره فيك تعبي (Excellent!)';
+        if (percentage >= 80) return '👏 Great job! Well done!';
+        if (percentage >= 60) return '👍 Good work!';
+        if (percentage >= 40) return '📚 Keep practicing!';
+        return '💪 You can do better next time!';
+      };
+
+      // --- EVENT LISTENERS ---
+      const setupEventListeners = () => {
+        // Main buttons
+        $('addQuestionBtn').onclick = addQuestion;
+        $('saveQuizBtn').onclick = saveQuiz;
+        $('newQuizBtn').onclick = newQuiz;
+        $('submitQuizBtn').onclick = submitQuiz;
+        $('retakeQuizBtn').onclick = () => startQuiz(activeQuiz);
+        $('backToCreator').onclick = () => showScreen('creator');
+        $('backToCreatorFromResults').onclick = () => showScreen('creator');
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+          tab.onclick = () => {
+            document.querySelectorAll('.tab, .tab-content').forEach(el => el.classList.remove('active'));
+            tab.classList.add('active');
+            $(tab.dataset.tab + 'Tab').classList.add('active');
+            
+            // Load content when tab is clicked
+            if (tab.dataset.tab === 'results') {
+              loadQuizResults();
+            } else if (tab.dataset.tab === 'saved') {
+              loadSavedQuizzes();
+            }
+          };
+        });
+
+        // Event delegation for question creator
+        $('questionsContainer').addEventListener('change', e => {
+          const questionCard = e.target.closest('.question-card');
+          if (!questionCard) return;
+          const id = Number(questionCard.dataset.id);
+          const question = creatorQuestions.find(q => q.id === id);
+          if (!question) return;
+
+          const field = e.target.dataset.field;
+          if (field === 'text') question.text = e.target.value;
+          if (field === 'answer') question.answer = e.target.value;
+          if (field === 'type') changeQuestionType(id, e.target.value);
+          if (field === 'option') {
+            const index = Number(e.target.dataset.index);
+            question.options[index] = e.target.value;
+            if (!question.options.filter(o => o.trim()).includes(question.answer)) {
+              question.answer = '';
+            }
+            renderCreatorQuestions();
+          }
+        });
+        
+        $('questionsContainer').addEventListener('click', e => {
+          if (e.target.dataset.action === 'remove') {
+            const id = Number(e.target.closest('.question-card').dataset.id);
+            removeQuestion(id);
+          }
+        });
+
+        // Event delegation for saved quizzes list
+        $('savedQuizzesContainer').addEventListener('click', e => {
+          const button = e.target.closest('button');
+          if (!button) return;
+          const action = button.dataset.action;
+          const index = Number(button.dataset.index);
+          if (isNaN(index)) return;
+
+          const quizzes = getFromStorage('quizzes');
+          if (action === 'start') startQuiz(quizzes[index]);
+          if (action === 'view') toggleQuizPreview(index);
+          if (action === 'edit') loadQuizForEdit(index);
+          if (action === 'delete') deleteQuiz(index);
+        });
+        
+        // Event delegation for results tab
+        $('resultsTab').addEventListener('click', e => {
+          if (e.target.id === 'clearResultsBtn') {
+            if (confirm('Are you sure you want to clear all quiz results?')) {
+              localStorage.removeItem('quizResults');
+              loadQuizResults();
+              showMessage('Results history cleared.');
+            }
+          }
+        });
+      };
+
+      // --- INITIALIZE APP ---
+      setupEventListeners();
+      loadSavedQuizzes();
+      addQuestion();
+    });
+  </script>
+</body>
+</html>

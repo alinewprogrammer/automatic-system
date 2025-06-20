@@ -1,0 +1,363 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.app-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.app-title {
+    color: #2d3436;
+    font-size: 32px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+}
+
+.home-screen {
+    text-align: center;
+}
+
+.deck-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.deck-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid #e9ecef;
+}
+
+.deck-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.deck-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 10px;
+}
+
+.deck-count {
+    color: #636e72;
+    margin-bottom: 20px;
+}
+
+.deck-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn {
+    background: #74b9ff;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn:hover {
+    background: #0984e3;
+    transform: translateY(-2px);
+}
+
+.btn.btn-success {
+    background: #00b894;
+}
+
+.btn.btn-success:hover {
+    background: #00a085;
+}
+
+.btn.btn-danger {
+    background: #e17055;
+}
+
+.btn.btn-danger:hover {
+    background: #d63031;
+}
+
+.btn.btn-warning {
+    background: #fdcb6e;
+    color: #2d3436;
+}
+
+.btn.btn-warning:hover {
+    background: #e84393;
+    color: white;
+}
+
+.btn.btn-large {
+    padding: 15px 30px;
+    font-size: 16px;
+    margin: 10px;
+}
+
+.create-form {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #74b9ff;
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.cards-list {
+    margin-top: 20px;
+}
+
+.card-item {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid #74b9ff;
+}
+
+.card-question {
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 5px;
+}
+
+.card-answer {
+    color: #636e72;
+}
+
+.flashcard {
+    width: 100%;
+    height: 300px;
+    perspective: 1000px;
+    margin-bottom: 30px;
+}
+
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+.flashcard.flipped .flashcard-inner {
+    transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.flashcard-front {
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    color: white;
+}
+
+.flashcard-back {
+    background: linear-gradient(135deg, #00b894, #00a085);
+    color: white;
+    transform: rotateY(180deg);
+}
+
+.quiz-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.quiz-progress {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #636e72;
+    font-weight: 500;
+}
+
+.dots-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #74b9ff;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+}
+
+.dot:hover {
+    border-color: #0984e3;
+    transform: scale(1.2);
+}
+
+.dot:checked {
+    background: #74b9ff;
+    transform: scale(1.3);
+}
+
+.dot.starred {
+    border-color: #fdcb6e;
+    background: #fdcb6e;
+}
+
+.star-btn {
+    background: #fdcb6e;
+    color: #2d3436;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+}
+
+.star-btn:hover {
+    background: #e84393;
+    color: white;
+}
+
+.star-btn.starred {
+    background: #e84393;
+    color: white;
+}
+
+.back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #2d3436;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: white;
+    transform: translateY(-2px);
+}
+
+.swipe-hint {
+    text-align: center;
+    color: #636e72;
+    font-size: 14px;
+    margin-top: 10px;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .app-container {
+        padding: 20px;
+    }
+    
+    .deck-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quiz-controls {
+        flex-wrap: wrap;
+    }
+    
+    .flashcard {
+        height: 250px;
+    }
+}
+
+        .navbar-link.active {
+            font-weight: bold;
+            color: #007bff; /* A simple blue to indicate active, can be changed */
+            border-bottom: 2px solid #007bff;
+        }
